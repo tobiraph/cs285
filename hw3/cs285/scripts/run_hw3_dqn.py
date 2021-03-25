@@ -5,7 +5,6 @@ from cs285.infrastructure.rl_trainer import RL_Trainer
 from cs285.agents.dqn_agent import DQNAgent
 from cs285.infrastructure.dqn_utils import get_env_kwargs
 
-
 class Q_Trainer(object):
 
     def __init__(self, params):
@@ -42,12 +41,12 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '--env_name',
-        default='MsPacman-v0',
+        default='LunarLander-v3',
         choices=('PongNoFrameskip-v4', 'LunarLander-v3', 'MsPacman-v0')
     )
 
     parser.add_argument('--ep_len', type=int, default=200)
-    parser.add_argument('--exp_name', type=str, default='todo')
+    parser.add_argument('--exp_name', type=str, default='q3_hparam1')
 
     parser.add_argument('--eval_batch_size', type=int, default=1000)
 

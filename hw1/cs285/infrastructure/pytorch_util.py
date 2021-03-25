@@ -1,8 +1,10 @@
 from typing import Union
+from collections import OrderedDict
 
 import torch
 from torch import nn
 
+# TODO: Union und _str.xxx verstehen!
 Activation = Union[str, nn.Module]
 
 
@@ -44,11 +46,27 @@ def build_mlp(
         activation = _str_to_activation[activation]
     if isinstance(output_activation, str):
         output_activation = _str_to_activation[output_activation]
-
-    # TODO: return a MLP. This should be an instance of nn.Module
+    # class MLP(nn.Module):
+    #     def __init__(self):
+    #         super().__init__()
+    # TOBI: Erzeuge OrderedDict mit hidden Layers
+    layers = OrderedDict([])
+    for i in range(n_layers):
+        if i == 0: # Erster Layer hat andere input Dimension
+            layers['hl_{0}'.format(i)] = nn.Linear(input_size,size)
+        else:
+            layers['hl_{0}'.format(i)] = nn.Linear(size,size)
+        layers['act_{0}'.format(i)] = activation
+    # Füge output layer hinzu
+    layers['output'] = nn.Linear(size,output_size)
+    layers['output_activation'] = output_activation
+    
+    model = nn.Sequential(layers)
+    
+    # Done: return a MLP. This should be an instance of nn.Module
     # Note: nn.Sequential is an instance of nn.Module.
-    raise NotImplementedError
-
+    return model
+            
 
 device = None
 

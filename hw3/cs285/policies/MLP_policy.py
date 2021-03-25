@@ -86,8 +86,20 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
 
     # query the policy with observation(s) to get selected action(s)
     def get_action(self, obs: np.ndarray) -> np.ndarray:
-        # TODO: get this from Piazza
-        return action
+        if len(obs.shape) > 1:
+            observation = obs
+        else:
+            observation = obs[None]
+
+        # DONE: return the action that the policy prescribes
+        # Cast to PyTorch tensor
+        observation = ptu.from_numpy(observation)
+        if self.discrete:
+            action = self.forward(observation)
+            action = action.sample()
+        else:
+            action = self.forward(observation)
+        return(ptu.to_numpy(action))
 
     # update/train this policy
     def update(self, observations, actions, **kwargs):
@@ -99,16 +111,46 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
     # return more flexible objects, such as a
     # `torch.distributions.Distribution` object. It's up to you!
     def forward(self, observation: torch.FloatTensor):
-        # TODO: get this from Piazza
+        if self.discrete:
+            logits = self.logits_na.forward(observation)
+            probs = torch.nn.functional.softmax(logits,dim=1)
+            action_distribution = torch.distributions.Categorical(probs)
+        else:
+            # HINT: Dies ist aktuell keine Verteilung, sondern die direkte Action
+            action_distribution = self.mean_net.forward(observation)
         return action_distribution
 
 
 #####################################################
 #####################################################
 
-
+# HINT: MLPPolicyAC gemäß MLPPolicyPG geändert!
 class MLPPolicyAC(MLPPolicy):
+    def __init__(self, ac_dim, ob_dim, n_layers, size, discrete, learning_rate, **kwargs):
+        super().__init__(ac_dim, ob_dim, n_layers, size, discrete, learning_rate, **kwargs)
+
     def update(self, observations, actions, adv_n=None):
-        # TODO: update the policy and return the loss
-        loss = TODO
+        observations = ptu.from_numpy(observations)
+        actions = ptu.from_numpy(actions)
+        adv_n = ptu.from_numpy(adv_n)
+
+        if self.discrete:
+            action_distribution = self.forward(observations)
+
+        else:
+            raise NotImplementedError()
+        # Recall that the expression that we want to MAXIMIZE
+        # is the expectation over collected trajectories of:
+        # sum_{t=0}^{T-1} [grad [log pi(a_t|s_t) * (Q_t - b_t)]]
+        # you will want to use the `log_prob` method on the distribution returned
+        # by the `forward` method
+        # don't forget that `optimizer.step()` MINIMIZES a loss
+
+        loss = action_distribution.log_prob(actions) * adv_n
+        loss = -loss.sum()
+
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
+
         return loss.item()

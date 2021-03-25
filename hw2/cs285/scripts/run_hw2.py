@@ -4,6 +4,8 @@ import time
 from cs285.infrastructure.rl_trainer import RL_Trainer
 from cs285.agents.pg_agent import PGAgent
 
+# TODO: Bearbeite update in MLP_policy
+
 class PG_Trainer(object):
 
     def __init__(self, params):
@@ -55,13 +57,13 @@ def main():
 
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('--env_name', type=str)
-    parser.add_argument('--exp_name', type=str, default='todo')
-    parser.add_argument('--n_iter', '-n', type=int, default=200)
+    parser.add_argument('--env_name', type=str,default='CartPole-v0')
+    parser.add_argument('--exp_name', type=str, default='q1_sb_no_rtg_dsa')
+    parser.add_argument('--n_iter', '-n', type=int, default=100)
 
     parser.add_argument('--reward_to_go', '-rtg', action='store_true')
     parser.add_argument('--nn_baseline', action='store_true')
-    parser.add_argument('--dont_standardize_advantages', '-dsa', action='store_true')
+    parser.add_argument('--dont_standardize_advantages', '-dsa', action='store_true', default=True)
     parser.add_argument('--batch_size', '-b', type=int, default=1000) #steps collected per train iteration
     parser.add_argument('--eval_batch_size', '-eb', type=int, default=400) #steps collected per eval iteration
 

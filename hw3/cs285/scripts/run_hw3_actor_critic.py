@@ -5,6 +5,8 @@ from cs285.agents.ac_agent import ACAgent
 from cs285.infrastructure.rl_trainer import RL_Trainer
 
 
+#TODO: Question 4: Fehler bei letzter Anweisung.
+
 class AC_Trainer(object):
 
     def __init__(self, params):
@@ -58,10 +60,10 @@ def main():
 
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('--env_name', type=str, default='CartPole-v0')
+    parser.add_argument('--env_name', type=str, default='LunarLander-v3')
     parser.add_argument('--ep_len', type=int, default=200)
-    parser.add_argument('--exp_name', type=str, default='todo')
-    parser.add_argument('--n_iter', '-n', type=int, default=200)
+    parser.add_argument('--exp_name', type=str, default='q3_hparam1')
+    parser.add_argument('--n_iter', '-n', type=int, default=100)
 
     parser.add_argument('--num_agent_train_steps_per_iter', type=int, default=1)
     parser.add_argument('--num_critic_updates_per_agent_update', type=int, default=1)
@@ -74,8 +76,8 @@ def main():
     parser.add_argument('--discount', type=float, default=1.0)
     parser.add_argument('--learning_rate', '-lr', type=float, default=5e-3)
     parser.add_argument('--dont_standardize_advantages', '-dsa', action='store_true')
-    parser.add_argument('--num_target_updates', '-ntu', type=int, default=10)
-    parser.add_argument('--num_grad_steps_per_target_update', '-ngsptu', type=int, default=10)
+    parser.add_argument('--num_target_updates', '-ntu', type=int, default=100)
+    parser.add_argument('--num_grad_steps_per_target_update', '-ngsptu', type=int, default=1)
     parser.add_argument('--n_layers', '-l', type=int, default=2)
     parser.add_argument('--size', '-s', type=int, default=64)
 

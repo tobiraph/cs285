@@ -72,18 +72,28 @@ class BootstrappedContinuousCritic(nn.Module, BaseCritic):
             returns:
                 training loss
         """
+        ob_no = ptu.from_numpy(ob_no)
+        ac_na = ptu.from_numpy(ac_na)
+        next_ob_no = ptu.from_numpy(next_ob_no)
+        reward_n = ptu.from_numpy(reward_n)
+        terminal_n = ptu.from_numpy(terminal_n)
         # TODO: Implement the pseudocode below: do the following (
         # self.num_grad_steps_per_target_update * self.num_target_updates)
         # times:
-        # every self.num_grad_steps_per_target_update steps (which includes the
-        # first step), recompute the target values by
-        #     a) calculating V(s') by querying the critic with next_ob_no
-        #     b) and computing the target values as r(s, a) + gamma * V(s')
-        # every time, update this critic using the observations and targets
-        #
-        # HINT: don't forget to use terminal_n to cut off the V(s') (ie set it
-        #       to 0) when a terminal state is reached
-        # HINT: make sure to squeeze the output of the critic_network to ensure
-        #       that its dimensions match the reward
-
+        for i in range(self.num_target_updates):
+            # TODO: recompute target vlaues
+            # Calculate V(s') and compute the target values as r(s, a) + gamma * V(s')
+            v_s_bar = self.forward(next_ob_no)
+            # cut off the V(s') (ie set it to 0) when a terminal state is reached
+            
+            targets = reward_n + self.gamma * v_s_bar
+            for j in range(self.num_grad_steps_per_target_update):
+                # update critic using the observations and targets
+                self.optimizer.zero_grad()
+                v_pred = self.forward(ob_no)
+                assert v_pred.shape == targets.shape
+                loss = self.loss(v_pred,targets)
+                loss.backward()
+                self.optimizer.step()
+                
         return loss.item()

@@ -47,6 +47,7 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
             )
             self.logits_na.to(ptu.device)
             self.mean_net = None
+            
             self.logstd = None
             self.optimizer = optim.Adam(self.logits_na.parameters(),
                                         self.learning_rate)
@@ -79,9 +80,13 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
             observation = obs
         else:
             observation = obs[None]
-
-        # TODO return the action that the policy prescribes
-        raise NotImplementedError
+            
+        # DONE: return the action that the policy prescribes
+        # Cast to PyTorch tensor
+        observation = ptu.from_numpy(observation)
+        action = self.mean_net.forward(observation)
+        return(ptu.to_numpy(action))
+        
 
     # update/train this policy
     def update(self, observations, actions, **kwargs):
@@ -109,7 +114,17 @@ class MLPPolicySL(MLPPolicy):
             adv_n=None, acs_labels_na=None, qvals=None
     ):
         # TODO: update the policy and return the loss
-        loss = TODO
+        # cast into PyTorch tensors
+        observations = ptu.from_numpy(observations)
+        actions = ptu.from_numpy(actions)
+        # zero the parameter gradients
+        self.optimizer.zero_grad()
+        
+        # forward + backward + optimize
+        acs_pred = self.mean_net(observations)
+        loss = self.loss(acs_pred, actions)
+        loss.backward()
+        self.optimizer.step()
         return {
             # You can add extra logging information here, but keep this line
             'Training Loss': ptu.to_numpy(loss),

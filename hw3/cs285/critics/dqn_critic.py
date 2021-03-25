@@ -61,12 +61,13 @@ class DQNCritic(BaseCritic):
         next_ob_no = ptu.from_numpy(next_ob_no)
         reward_n = ptu.from_numpy(reward_n)
         terminal_n = ptu.from_numpy(terminal_n)
+        terminal_n = terminal_n.type(torch.bool)
 
         qa_t_values = self.q_net(ob_no)
         q_t_values = torch.gather(qa_t_values, 1, ac_na.unsqueeze(1)).squeeze(1)
         
         # TODO compute the Q-values from the target network 
-        qa_tp1_values = TODO
+        qa_tp1_values = self.q_net_target(next_ob_no)
 
         if self.double_q:
             # You must fill this part for Q2 of the Q-learning portion of the homework.
@@ -77,10 +78,9 @@ class DQNCritic(BaseCritic):
         else:
             q_tp1, _ = qa_tp1_values.max(dim=1)
 
-        # TODO compute targets for minimizing Bellman error
-        # HINT: as you saw in lecture, this would be:
-            #currentReward + self.gamma * qValuesOfNextTimestep * (not terminal)
-        target = TODO
+        # Done compute targets for minimizing Bellman error
+        # HINT: currentReward + self.gamma * qValuesOfNextTimestep * (not terminal)
+        target = reward_n + self.gamma  * q_tp1 * (~terminal_n)
         target = target.detach()
 
         assert q_t_values.shape == target.shape
